@@ -1,4 +1,5 @@
 using Core.Interfaces;
+using ecommerce.Helpers;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -14,6 +15,7 @@ builder.Services.AddDbContext<StoreContext>(options =>
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
+builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
 
 // Create a scope for the service provider
