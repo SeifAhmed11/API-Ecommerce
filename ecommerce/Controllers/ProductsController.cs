@@ -1,9 +1,12 @@
 ﻿using Core.Entities;
 using Core.Interfaces;
+using Core.Specifications;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ecommerce.Controllers
 {
@@ -15,7 +18,7 @@ namespace ecommerce.Controllers
         private readonly IGenericRepository<ProductType> _productTypeRepo;
         private readonly IGenericRepository<ProductBrand> _productBrandRepo;
 
-        public ProductsController(IGenericRepository<Product>productsRepo,
+        public ProductsController(IGenericRepository<Product> productsRepo,
                                   IGenericRepository<ProductType> productTypeRepo,
                                   IGenericRepository<ProductBrand> productBrandRepo)
         {
@@ -23,10 +26,12 @@ namespace ecommerce.Controllers
             _productTypeRepo = productTypeRepo;
             _productBrandRepo = productBrandRepo;
         }
+
         [HttpGet]
         public async Task<ActionResult<List<Product>>> GetProducts()
         {
-            var products = await _productsRepo.ListAllAsync();
+            var spec = new ProductsWithTypesAndBrandsSpecification();
+            var products = await _productsRepo.ListAsync(spec);
             return Ok(products);
         }
 
