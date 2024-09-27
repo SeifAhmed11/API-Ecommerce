@@ -23,4 +23,9 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\images\.DS_Store" />
+    <None Include="wwwroot\images\products\.DS_Store" />
+  </ItemGroup>
+
 </Project>
