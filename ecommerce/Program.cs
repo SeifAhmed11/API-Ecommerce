@@ -1,3 +1,4 @@
+using API.Middleware;
 using Core.Interfaces;
 using ecommerce.Helpers;
 using Infrastructure.Data;
@@ -37,6 +38,8 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 app.UseStaticFiles();
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseStatusCodePagesWithReExecute("/errors/{0}");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
