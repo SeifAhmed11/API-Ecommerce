@@ -32,13 +32,29 @@ namespace ecommerce.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts()
+        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts(string sort = null)
         {
-            var spec = new ProductsWithTypesAndBrandsSpecification();
+            // Log the sort value to ensure it's being passed correctly
+            Console.WriteLine($"Sort value: {sort}");
+
+            sort = string.IsNullOrEmpty(sort) ? "name" : sort.ToLower();
+
+            // Validate sort parameter
+            var validSortValues = new List<string> { "priceasc", "pricedesc", "name" };
+            if (!validSortValues.Contains(sort))
+            {
+                return BadRequest(new { errors = new[] { "Invalid sort value." }, statusCode = 400, message = "Invalid sort parameter." });
+            }
+
+            // Use the specification with the sort parameter
+            var spec = new ProductsWithTypesAndBrandsSpecification(sort);
             var products = await _productsRepo.ListAsync(spec);
 
-            return Ok(_mapper.Map<IReadOnlyList<Product>,IReadOnlyList<ProductToReturnDto>>(products));
+            return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products));
         }
+
+
+
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
