@@ -1,7 +1,9 @@
 using API.Middleware;
 using Core.Interfaces;
+using ecommerce.Errors;
 using ecommerce.Helpers;
 using Infrastructure.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -10,6 +12,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
+// Custom error response for API validation errors
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = actionContext =>
+    {
+        var errors = actionContext.ModelState
+            .Where(e => e.Value.Errors.Count > 0)
+            .SelectMany(x => x.Value.Errors)
+            .Select(x => x.ErrorMessage).ToArray();
+
+        var errorResponse = new ApiValidationErrorResponse
+        {
+            Errors = errors
+        };
+
+        return new BadRequestObjectResult(errorResponse);
+    };
+});
+
 // Add SQLite connection
 builder.Services.AddDbContext<StoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -17,7 +38,6 @@ builder.Services.AddDbContext<StoreContext>(options =>
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
-
 
 // Create a scope for the service provider
 using (var scope = builder.Services.BuildServiceProvider().CreateScope())
