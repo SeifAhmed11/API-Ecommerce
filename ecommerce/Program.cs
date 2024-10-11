@@ -6,6 +6,7 @@ using Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,11 +36,22 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddDbContext<StoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IBasketRepository, BasketRepository>(); // Add BasketRepository
 builder.Services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
 builder.Services.AddAutoMapper(typeof(MappingProfiles));
 
-// Create a scope for the service provider
+// Register Redis connection
+builder.Services.AddSingleton<IConnectionMultiplexer>(c =>
+{
+    var configurationOptions = ConfigurationOptions.Parse(builder.Configuration.GetConnectionString("Redis"), true);
+    configurationOptions.AbortOnConnectFail = false;  // Allow retries on connection failure
+    return ConnectionMultiplexer.Connect(configurationOptions);
+});
+
+
+// Create a scope for the service provider to seed the database
 using (var scope = builder.Services.BuildServiceProvider().CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<StoreContext>();
@@ -49,7 +61,7 @@ using (var scope = builder.Services.BuildServiceProvider().CreateScope())
     StoreContextSeed.SeedAsync(context, loggerFactory).Wait();
 }
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Configure Swagger/OpenAPI
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
