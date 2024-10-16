@@ -3,6 +3,7 @@ using Core.Interfaces;
 using ecommerce.Errors;
 using ecommerce.Helpers;
 using Infrastructure.Data;
+using Infrastructure.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -32,9 +33,13 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     };
 });
 
-// Add SQLite connection
+// connection
 builder.Services.AddDbContext<StoreContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddDbContext<AppIdentityDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("IdentityConnection")));
 
 // Register repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
