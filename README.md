@@ -9,7 +9,6 @@ This project is an API for e-commerce, currently under development. Once complet
 - Order Processing
 - Payment Integration
 - Inventory Management
-- Reviews & Ratings
 
 ## Usage
 The API will be available for free, making it easy for developers to integrate a robust e-commerce solution into their applications.
