@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Core.Entities;
 using Core.Interfaces;
 using StackExchange.Redis;
@@ -8,7 +8,6 @@ namespace Infrastructure.Data
     public class BasketRepository : IBasketRepository
     {
         private readonly IDatabase _database;
-
         public BasketRepository(IConnectionMultiplexer redis)
         {
             _database = redis.GetDatabase();
@@ -22,6 +21,7 @@ namespace Infrastructure.Data
         public async Task<CustomerBasket> GetBasketAsync(string basketId)
         {
             var data = await _database.StringGetAsync(basketId);
+
             return data.IsNullOrEmpty ? null : JsonSerializer.Deserialize<CustomerBasket>(data);
         }
 
